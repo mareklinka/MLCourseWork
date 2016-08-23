@@ -28,23 +28,46 @@ namespace LinearRegressionForOneVariable
             // normalization of both axes to prevent overflowing the double type
             // normalization on Y will cause the returned k0 to be scaled as well
             // normalization will have no effect on the X axis and/or k1
-            var maxX = trainingData.Max(_ => _.X);
-            var maxY = trainingData.Max(_ => _.Y);
-            var normalized = trainingData.Select(_ => new DataPoint {X = _.X/maxX, Y = _.Y/maxY}).ToArray();
+            var normalized = Normalization.Rescale(trainingData);
             double k0;
             double k1;
             var result = LinearRegressionForOneVariable.LinearRegression.CalculateVector(normalized, out k0, out k1);
 
             Console.WriteLine("Vector implementation:");
-            Console.WriteLine($"Linear regression complete: h(x) = {k0*maxY:F4} + {k1:F4}*x");
+            Console.WriteLine($"Linear regression complete: h(x) = {k0:F4} + {k1:F4}*x");
             Console.WriteLine(
                 $"Result reached in {result.Iterations} gradient iterations and {result.Duration.TotalMilliseconds} ms");
 
             var result2 = LinearRegressionForOneVariable.LinearRegression.Calculate(normalized, out k0, out k1);
             Console.WriteLine("Normal implementation:");
-            Console.WriteLine($"Linear regression complete: h(x) = {k0*maxY:F4} + {k1:F4}*x");
+            Console.WriteLine($"Linear regression complete: h(x) = {k0:F4} + {k1:F4}*x");
             Console.WriteLine(
                 $"Result reached in {result2.Iterations} gradient iterations and {result2.Duration.TotalMilliseconds} ms");
+        }
+    }
+
+    public static class Normalization
+    {
+        public static DataPoint[] Rescale(DataPoint[] data)
+        {
+            var result = new DataPoint[data.Length];
+            var maxX = data.Max(_ => _.X);
+            var minX = data.Min(_ => _.X);
+            var maxY = data.Max(_ => _.Y);
+            var minY = data.Min(_ => _.Y);
+
+            for (var i = 0; i < data.Length; i++)
+            {
+                var point = data[i];
+                result[i] = new DataPoint {X = Rescale(point.X, minX, maxX), Y = Rescale(point.Y, minY, maxY)};
+            }
+
+            return result;
+        }
+
+        private static double Rescale(double value, double min, double max)
+        {
+            return (value - min)/(max - min);
         }
     }
 
@@ -200,20 +223,12 @@ namespace LinearRegressionForOneVariable
     {
         public static DataPoint[] Generate(int count)
         {
-            //return new []
-            //{
-            //    new DataPoint { X = 1, Y =  1},
-            //     new DataPoint { X = 2, Y =  2},
-            //     new DataPoint { X = 3, Y =  3},
-            //     new DataPoint { X = 4, Y =  4},
-            //};
-
             var r = new Random();
             var result = new DataPoint[count];
 
             for (var i = 0; i < count; i++)
             {
-                result[i] = new DataPoint {X = i, Y = i };
+                result[i] = new DataPoint {X = i, Y = i+Math.Sin(i) * i };
             }
 
             return result;
