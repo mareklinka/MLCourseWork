@@ -12,7 +12,7 @@ namespace LinearRegressionForOneVariable
         static void Main(string[] args)
         {
             Console.WriteLine($".NET 4.6 Vector SIMD acceleration enabled: {Vector.IsHardwareAccelerated}");
-            Console.WriteLine();
+            Console.WriteLine($"Vector instruction length: {Vector<int>.Count * sizeof(int) * 8} bits");
 
             while (true)
             {
