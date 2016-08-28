@@ -24,5 +24,9 @@ namespace VectorMath
         public abstract MathMatrix<T> Subtract(MathMatrix<T> left, MathMatrix<T> right);
 
         public abstract MathMatrix<T> Multiply(MathMatrix<T> left, MathMatrix<T> right);
+
+        public abstract void TransposeInPlace(MathMatrix<T> matrix);
+
+        public abstract MathMatrix<T> Transpose(MathMatrix<T> matrix);
     }
 }

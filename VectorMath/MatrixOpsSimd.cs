@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 
 namespace VectorMath
 {
@@ -85,5 +87,25 @@ namespace VectorMath
                 return Multiply(leftByRow, rightByCol);
             }
         }
+
+        public override void TransposeInPlace(MathMatrix<T> matrix)
+        {
+            matrix.SwapVectorizationMode();
+        }
+
+        public override MathMatrix<T> Transpose(MathMatrix<T> matrix)
+        {
+            var list = new List<MathVector<T>>(matrix.Vectors.Count);
+
+            for (var i = 0; i < matrix.Vectors.Count; i++)
+            {
+                list.Add(matrix.Vectors[i].Clone());
+            }
+
+            var result = new MathMatrix<T>(list, matrix.VectorizationMode);
+            result.SwapVectorizationMode();
+
+            return result;
+        }
     }
-}
+}   

@@ -594,6 +594,94 @@ namespace VectorMath.Tests
             }
         }
 
+        [TestMethod]
+        public void TransposeInPlace_Int()
+        {
+            var rows = 10;
+            var columns = 6;
+            var data1 = PrepareMatrixInt(rows, columns);
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.TransposeInPlace().ToArray();
+
+            Assert.AreEqual(rows, result.GetLength(1));
+            Assert.AreEqual(columns, result.GetLength(0));
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    Assert.AreEqual(data1[col, row], result[row, col]);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TransposeInPlace_Float()
+        {
+            var rows = 10;
+            var columns = 6;
+            var data1 = PrepareMatrixFloat(rows, columns);
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.TransposeInPlace().ToArray();
+
+            Assert.AreEqual(rows, result.GetLength(1));
+            Assert.AreEqual(columns, result.GetLength(0));
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    Assert.AreEqual(data1[col, row], result[row, col]);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Transpose_Int()
+        {
+            var rows = 10;
+            var columns = 6;
+            var data1 = PrepareMatrixInt(rows, columns);
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Transpose().ToArray();
+
+            Assert.AreEqual(rows, result.GetLength(1));
+            Assert.AreEqual(columns, result.GetLength(0));
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    Assert.AreEqual(data1[col, row], result[row, col]);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Transpose_Float()
+        {
+            var rows = 10;
+            var columns = 6;
+            var data1 = PrepareMatrixFloat(rows, columns);
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Transpose().ToArray();
+
+            Assert.AreEqual(rows, result.GetLength(1));
+            Assert.AreEqual(columns, result.GetLength(0));
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    Assert.AreEqual(data1[col, row], result[row, col]);
+                }
+            }
+        }
+
         [TestCategory("Performance")]
         [TestMethod]
         public void MultiplicationPerformance_Int()
@@ -642,6 +730,94 @@ namespace VectorMath.Tests
             Console.WriteLine("Total time: " + sw.Elapsed.TotalMilliseconds);
         }
 
+        [TestCategory("Performance")]
+        [TestMethod]
+        public void TransposePerformance_Int()
+        {
+            // not really a test
+            // serves as a performance-testing workbench
+            var n = 300;
+            var data1 = PrepareMatrixInt(n, n, 2);
+
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByRow);
+
+            var sw = new Stopwatch();
+
+            for (var i = 0; i < 100; i++)
+            {
+                sw.Start();
+                var m = mathMatrix1.Transpose();
+                sw.Stop();
+            }
+
+            Console.WriteLine("Total time: " + sw.Elapsed.TotalMilliseconds);
+        }
+
+        [TestCategory("Performance")]
+        [TestMethod]
+        public void TransposePerformance_Float()
+        {
+            var n = 300;
+            var data1 = PrepareMatrixFloat(n, n, 1);
+
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+
+            var sw = new Stopwatch();
+
+            for (var i = 0; i < 100; i++)
+            {
+                sw.Start();
+                var m = mathMatrix1.Transpose();
+                sw.Stop();
+            }
+
+            Console.WriteLine("Total time: " + sw.Elapsed.TotalMilliseconds);
+        }
+
+        [TestCategory("Performance")]
+        [TestMethod]
+        public void TransposeInPlacePerformance_Int()
+        {
+            // not really a test
+            // serves as a performance-testing workbench
+            var n = 300;
+            var data1 = PrepareMatrixInt(n, n, 2);
+
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByRow);
+
+            var sw = new Stopwatch();
+
+            for (var i = 0; i < 100; i++)
+            {
+                sw.Start();
+                var m = mathMatrix1.TransposeInPlace();
+                sw.Stop();
+            }
+
+            Console.WriteLine("Total time: " + sw.Elapsed.TotalMilliseconds);
+        }
+
+        [TestCategory("Performance")]
+        [TestMethod]
+        public void TransposeInPlacePerformance_Float()
+        {
+            var n = 300;
+            var data1 = PrepareMatrixFloat(n, n, 1);
+
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+
+            var sw = new Stopwatch();
+
+            for (var i = 0; i < 100; i++)
+            {
+                sw.Start();
+                var m = mathMatrix1.TransposeInPlace();
+                sw.Stop();
+            }
+
+            Console.WriteLine("Total time: " + sw.Elapsed.TotalMilliseconds);
+        }
+        
         private static int[,] PrepareMatrixInt(int rows, int cols, int max = 500)
         {
             var data = new int[rows, cols];

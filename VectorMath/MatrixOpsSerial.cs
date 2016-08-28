@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
 namespace VectorMath
 {
@@ -116,6 +119,31 @@ namespace VectorMath
             }
 
             return new MathMatrix<T>(data, MatrixVectorizationType.ByRow);
+        }
+
+        public override void TransposeInPlace(MathMatrix<T> matrix)
+        {
+            var data = TransposeCore(matrix);
+
+            matrix.Update(data);
+        }
+
+        private static T[,] TransposeCore(MathMatrix<T> matrix)
+        {
+            var data = new T[matrix.Columns, matrix.Rows];
+            for (var row = 0; row < matrix.Rows; row++)
+            {
+                for (var col = 0; col < matrix.Columns; col++)
+                {
+                    data[col, row] = matrix[row, col];
+                }
+            }
+            return data;
+        }
+
+        public override MathMatrix<T> Transpose(MathMatrix<T> matrix)
+        {
+            return new MathMatrix<T>(TransposeCore(matrix));
         }
     }
 }

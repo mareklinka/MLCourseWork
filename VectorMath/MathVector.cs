@@ -94,6 +94,49 @@ namespace VectorMath
             return VectorOps<T>.GetInstance().Subtract(left, right);
         }
 
+        public static MathVector<T> One(int length)
+        {
+            if (length <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
+
+            var data = new T[length];
+
+            if (typeof(T) == typeof(int))
+            {
+                for (var i = 0; i < length; i++)
+                {
+                    data[i] = (T) (ValueType) 1;
+                }
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                for (var i = 0; i < length; i++)
+                {
+                    data[i] = (T)(ValueType)1F;
+                }
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+
+            return new MathVector<T>(data);
+        }
+
+        public static MathVector<T> Zero(int length)
+        {
+            if (length <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
+
+            var data = new T[length];
+
+            return new MathVector<T>(data);
+        }
+
         public MathVector<T> MultiplyScalar(T scalar)
         {
             return VectorOps<T>.GetInstance().MultiplyScalar(this, scalar);
@@ -181,6 +224,26 @@ namespace VectorMath
             else
             {
                 return Data;
+            }
+        }
+
+        internal MathVector<T> Clone()
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                var list = new List<Vector<T>>(Vectors.Count);
+                for (var i = 0; i < Vectors.Count; i++)
+                {
+                    var data = new T[Vector<T>.Count];
+                    Vectors[i].CopyTo(data);
+                    list.Add(new Vector<T>(data));
+                }
+
+                return new MathVector<T>(list, (T[]) Tail.Clone());
+            }
+            else
+            {
+                return new MathVector<T>((T[]) Data.Clone());
             }
         }
     }

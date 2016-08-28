@@ -6,7 +6,7 @@ namespace VectorMath
 {
     public sealed class MathMatrix<T> where T : struct
     {
-        private readonly T[,] _data;
+        private T[,] _data;
 
         public List<MathVector<T>> Vectors { get; }
 
@@ -61,7 +61,6 @@ namespace VectorMath
             else
             {
                 _data = data;
-                
             }
         }
 
@@ -89,11 +88,11 @@ namespace VectorMath
             Vectors = vectors;
         }
 
-        public MatrixVectorizationType VectorizationMode { get; }
+        public MatrixVectorizationType VectorizationMode { get; private set; }
 
-        public int Rows { get; }
+        public int Rows { get; private set; }
 
-        public int Columns { get; }
+        public int Columns { get; private set; }
 
         public T[,] ToArray()
         {
@@ -186,6 +185,119 @@ namespace VectorMath
             }
 
             return MatrixOps<T>.GetInstance().Multiply(this, right);
+        }
+
+        public MathMatrix<T> TransposeInPlace()
+        {
+            MatrixOps<T>.GetInstance().TransposeInPlace(this);
+            return this;
+        }
+
+        public MathMatrix<T> Transpose()
+        {
+            return MatrixOps<T>.GetInstance().Transpose(this);
+        }
+
+        public static MathMatrix<T> Zero(int rows, int columns)
+        {
+            var data = new T[rows, columns];
+
+            return new MathMatrix<T>(data);
+        }
+
+        public static MathMatrix<T> One(int rows, int columns)
+        {
+            var data = new T[rows, columns];
+
+            if (typeof(T) == typeof(int))
+            {
+                for (var row = 0; row < rows; row++)
+                {
+                    for (var col = 0; col < columns; col++)
+                    {
+                        data[row, col] = (T)(ValueType)1;
+                    }
+                    
+                }
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                for (var row = 0; row < rows; row++)
+                {
+                    for (var col = 0; col < columns; col++)
+                    {
+                        data[row, col] = (T)(ValueType)1F;
+                    }
+                }
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+
+            return new MathMatrix<T>(data);
+        }
+
+        public static MathMatrix<T> I(int dimension)
+        {
+            var data = new T[dimension, dimension];
+
+            if (typeof(T) == typeof(int))
+            {
+                for (var i = 0; i < dimension; i++)
+                {
+                    data[i, i] = (T)(ValueType)1;
+                }
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                for (var i = 0; i < dimension; i++)
+                {
+                    data[i, i] = (T)(ValueType)1F;
+                }
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+
+            return new MathMatrix<T>(data);
+        }
+
+        internal void Update(T[,] data)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                throw new NotSupportedException();
+            }
+
+            _data = data;
+            Rows = data.GetLength(0);
+            Columns = data.GetLength(1);
+        }
+
+        internal void SwapVectorizationMode()
+        {
+            if (!Vector.IsHardwareAccelerated)
+            {
+                throw new NotSupportedException();
+            }
+
+            switch (VectorizationMode)
+            {
+                case MatrixVectorizationType.ByRow:
+                    VectorizationMode = MatrixVectorizationType.ByColumn;
+                    break;
+                case MatrixVectorizationType.ByColumn:
+                    VectorizationMode = MatrixVectorizationType.ByRow;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            var temp = Rows;
+            Rows = Columns;
+            Columns = temp;
         }
     }
 }
