@@ -175,5 +175,17 @@ namespace VectorMath
 
             return MatrixOps<T>.GetInstance().Subtract(this, right);
         }
+
+        public MathMatrix<T> Multiply(MathMatrix<T> right)
+        {
+            if (right == null) throw new ArgumentNullException(nameof(right));
+
+            if (Rows != right.Columns || Columns != right.Rows)
+            {
+                throw new InvalidOperationException($"Unable to multiply matrix {Rows}x{Columns} by {right.Rows}x{right.Columns}. Incompatible dimensions.");
+            }
+
+            return MatrixOps<T>.GetInstance().Multiply(this, right);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -8,6 +9,8 @@ namespace VectorMath.Tests
     [TestClass]
     public class MathMatrixTests
     {
+        private const float FloatEpsilon = 0.001F;
+
         [TestInitialize]
         public void Initialize()
         {
@@ -240,55 +243,431 @@ namespace VectorMath.Tests
         }
 
         [TestMethod]
-        public void Perfo()
+        public void Subtract_Int_BothByRow()
+        {
+            var data1 = PrepareMatrixInt(10, 6);
+            var data2 = PrepareMatrixInt(10, 6);
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByRow);
+            var mathMatrix2 = new MathMatrix<int>(data2, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Subtract(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    Assert.AreEqual(data1[row, col] - data2[row, col], result[row, col]);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Subtract_Int_BothByCol()
+        {
+            var data1 = PrepareMatrixInt(10, 6);
+            var data2 = PrepareMatrixInt(10, 6);
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByColumn);
+            var mathMatrix2 = new MathMatrix<int>(data2, MatrixVectorizationType.ByColumn);
+
+            var result = mathMatrix1.Subtract(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    Assert.AreEqual(data1[row, col] - data2[row, col], result[row, col]);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Subtract_Int_DifferentVect()
+        {
+            var data1 = PrepareMatrixInt(10, 6);
+            var data2 = PrepareMatrixInt(10, 6);
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByRow);
+            var mathMatrix2 = new MathMatrix<int>(data2, MatrixVectorizationType.ByColumn);
+
+            var m = mathMatrix1.Subtract(mathMatrix2);
+            var result = m.ToArray();
+
+            Assert.AreEqual(MatrixVectorizationType.ByRow, m.VectorizationMode);
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    Assert.AreEqual(data1[row, col] - data2[row, col], result[row, col]);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Subtract_Float_BothByRow()
+        {
+            var data1 = PrepareMatrixFloat(10, 6);
+            var data2 = PrepareMatrixFloat(10, 6);
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+            var mathMatrix2 = new MathMatrix<float>(data2, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Subtract(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    Assert.AreEqual(data1[row, col] - data2[row, col], result[row, col]);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Subtract_Float_BothByCol()
+        {
+            var data1 = PrepareMatrixFloat(10, 6);
+            var data2 = PrepareMatrixFloat(10, 6);
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByColumn);
+            var mathMatrix2 = new MathMatrix<float>(data2, MatrixVectorizationType.ByColumn);
+
+            var result = mathMatrix1.Subtract(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    Assert.AreEqual(data1[row, col] - data2[row, col], result[row, col]);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Subtract_Float_DifferentVect()
+        {
+            var data1 = PrepareMatrixFloat(10, 6);
+            var data2 = PrepareMatrixFloat(10, 6);
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+            var mathMatrix2 = new MathMatrix<float>(data2, MatrixVectorizationType.ByColumn);
+
+            var m = mathMatrix1.Subtract(mathMatrix2);
+            var result = m.ToArray();
+
+            Assert.AreEqual(MatrixVectorizationType.ByRow, m.VectorizationMode);
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    Assert.AreEqual(data1[row, col] - data2[row, col], result[row, col]);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Multiply_Int_BothByRow()
+        {
+            var data1 = PrepareMatrixInt(10, 6);
+            var data2 = PrepareMatrixInt(6, 10);
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByRow);
+            var mathMatrix2 = new MathMatrix<int>(data2, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Multiply(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    var rowData = new int[data1.GetLength(1)];
+                    Buffer.BlockCopy(data1, sizeof(int)*row*data1.GetLength(1), rowData, 0, sizeof(int)*data1.GetLength(1));
+                    var colData = new int[data2.GetLength(0)];
+                    for (var i = 0; i < data2.GetLength(0); i++)
+                    {
+                        colData[i] = data2[i, col];
+                    }
+
+                    var sumProduct = rowData.Zip(colData, (x, y) => new {x, y}).Sum(_ => _.x*_.y);
+
+                    Assert.AreEqual(sumProduct, result[row, col], $"Assertion failure at {row}x{col}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Multiply_Int_BothByCol()
+        {
+            var data1 = PrepareMatrixInt(10, 6);
+            var data2 = PrepareMatrixInt(6, 10);
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByColumn);
+            var mathMatrix2 = new MathMatrix<int>(data2, MatrixVectorizationType.ByColumn);
+
+            var result = mathMatrix1.Multiply(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    var rowData = new int[data1.GetLength(1)];
+                    Buffer.BlockCopy(data1, sizeof(int) * row * data1.GetLength(1), rowData, 0, sizeof(int) * data1.GetLength(1));
+                    var colData = new int[data2.GetLength(0)];
+                    for (var i = 0; i < data2.GetLength(0); i++)
+                    {
+                        colData[i] = data2[i, col];
+                    }
+
+                    var sumProduct = rowData.Zip(colData, (x, y) => new { x, y }).Sum(_ => _.x * _.y);
+
+                    Assert.AreEqual(sumProduct, result[row, col], $"Assertion failure at {row}x{col}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Multiply_Int_DifferentVect()
+        {
+            var data1 = PrepareMatrixInt(10, 6);
+            var data2 = PrepareMatrixInt(6, 10);
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByRow);
+            var mathMatrix2 = new MathMatrix<int>(data2, MatrixVectorizationType.ByColumn);
+
+            var result = mathMatrix1.Multiply(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    var rowData = new int[data1.GetLength(1)];
+                    Buffer.BlockCopy(data1, sizeof(int) * row * data1.GetLength(1), rowData, 0, sizeof(int) * data1.GetLength(1));
+                    var colData = new int[data2.GetLength(0)];
+                    for (var i = 0; i < data2.GetLength(0); i++)
+                    {
+                        colData[i] = data2[i, col];
+                    }
+
+                    var sumProduct = rowData.Zip(colData, (x, y) => new { x, y }).Sum(_ => _.x * _.y);
+
+                    Assert.AreEqual(sumProduct, result[row, col], $"Assertion failure at {row}x{col}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Multiply_Int_DifferentVect2()
+        {
+            var data1 = PrepareMatrixInt(10, 6);
+            var data2 = PrepareMatrixInt(6, 10);
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByRow);
+            var mathMatrix2 = new MathMatrix<int>(data2, MatrixVectorizationType.ByColumn);
+
+            var result = mathMatrix1.Multiply(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    var rowData = new int[data1.GetLength(1)];
+                    Buffer.BlockCopy(data1, sizeof(int) * row * data1.GetLength(1), rowData, 0, sizeof(int) * data1.GetLength(1));
+                    var colData = new int[data2.GetLength(0)];
+                    for (var i = 0; i < data2.GetLength(0); i++)
+                    {
+                        colData[i] = data2[i, col];
+                    }
+
+                    var sumProduct = rowData.Zip(colData, (x, y) => new { x, y }).Sum(_ => _.x * _.y);
+
+                    Assert.AreEqual(sumProduct, result[row, col], $"Assertion failure at {row}x{col}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Multiply_Float_BothByRow()
+        {
+            var data1 = PrepareMatrixFloat(4, 3, 50);
+            var data2 = PrepareMatrixFloat(3, 4, 50);
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+            var mathMatrix2 = new MathMatrix<float>(data2, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Multiply(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    var rowData = new float[data1.GetLength(1)];
+                    Buffer.BlockCopy(data1, sizeof(float) * row * data1.GetLength(1), rowData, 0, sizeof(float) * data1.GetLength(1));
+                    var colData = new float[data2.GetLength(0)];
+                    for (var i = 0; i < data2.GetLength(0); i++)
+                    {
+                        colData[i] = data2[i, col];
+                    }
+
+                    var sumProduct = rowData.Zip(colData, (x, y) => new { x, y }).Sum(_ => _.x * _.y);
+
+                    Assert.AreEqual(sumProduct, result[row, col], FloatEpsilon, $"Assertion failure at {row}x{col}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Multiply_Float_BothByCol()
+        {
+            var data1 = PrepareMatrixFloat(4, 3, 50);
+            var data2 = PrepareMatrixFloat(3, 4, 50);
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByColumn);
+            var mathMatrix2 = new MathMatrix<float>(data2, MatrixVectorizationType.ByColumn);
+
+            var result = mathMatrix1.Multiply(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    var rowData = new float[data1.GetLength(1)];
+                    Buffer.BlockCopy(data1, sizeof(float) * row * data1.GetLength(1), rowData, 0, sizeof(float) * data1.GetLength(1));
+                    var colData = new float[data2.GetLength(0)];
+                    for (var i = 0; i < data2.GetLength(0); i++)
+                    {
+                        colData[i] = data2[i, col];
+                    }
+
+                    var sumProduct = rowData.Zip(colData, (x, y) => new { x, y }).Sum(_ => _.x * _.y);
+
+                    Assert.AreEqual(sumProduct, result[row, col], FloatEpsilon, $"Assertion failure at {row}x{col}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Multiply_Float_DifferentVect()
+        {
+            var data1 = PrepareMatrixFloat(4, 3, 50);
+            var data2 = PrepareMatrixFloat(3, 4, 50);
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+            var mathMatrix2 = new MathMatrix<float>(data2, MatrixVectorizationType.ByColumn);
+
+            var result = mathMatrix1.Multiply(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    var rowData = new float[data1.GetLength(1)];
+                    Buffer.BlockCopy(data1, sizeof(float) * row * data1.GetLength(1), rowData, 0, sizeof(float) * data1.GetLength(1));
+                    var colData = new float[data2.GetLength(0)];
+                    for (var i = 0; i < data2.GetLength(0); i++)
+                    {
+                        colData[i] = data2[i, col];
+                    }
+
+                    var sumProduct = rowData.Zip(colData, (x, y) => new { x, y }).Sum(_ => _.x * _.y);
+
+                    Assert.AreEqual(sumProduct, result[row, col], FloatEpsilon, $"Assertion failure at {row}x{col}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Multiply_Float_DifferentVect2()
+        {
+            var data1 = PrepareMatrixFloat(4, 3, 50);
+            var data2 = PrepareMatrixFloat(3, 4, 50);
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByColumn);
+            var mathMatrix2 = new MathMatrix<float>(data2, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Multiply(mathMatrix2).ToArray();
+
+            for (var row = 0; row < result.GetLength(0); row++)
+            {
+                for (var col = 0; col < result.GetLength(1); col++)
+                {
+                    var rowData = new float[data1.GetLength(1)];
+                    Buffer.BlockCopy(data1, sizeof(float) * row * data1.GetLength(1), rowData, 0, sizeof(float) * data1.GetLength(1));
+                    var colData = new float[data2.GetLength(0)];
+                    for (var i = 0; i < data2.GetLength(0); i++)
+                    {
+                        colData[i] = data2[i, col];
+                    }
+
+                    var sumProduct = rowData.Zip(colData, (x, y) => new { x, y }).Sum(_ => _.x * _.y);
+
+                    Assert.AreEqual(sumProduct, result[row, col], FloatEpsilon, $"Assertion failure at {row}x{col}");
+                }
+            }
+        }
+
+        [TestCategory("Performance")]
+        [TestMethod]
+        public void MultiplicationPerformance_Int()
         {
             // not really a test
             // serves as a performance-testing workbench
             var n = 300;
-            var data1 = PrepareMatrixFloat(n, n);
-            var data2 = PrepareMatrixFloat(n, n);
+            var data1 = PrepareMatrixInt(n, n, 2);
+            var data2 = PrepareMatrixInt(n, n, 2);
 
-            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
-            var mathMatrix2 = new MathMatrix<float>(data2, MatrixVectorizationType.ByRow);
+            var mathMatrix1 = new MathMatrix<int>(data1, MatrixVectorizationType.ByRow);
+            var mathMatrix2 = new MathMatrix<int>(data2, MatrixVectorizationType.ByColumn);
 
             var sw = new Stopwatch();
 
-            for (int i = 0; i < 10000; i++)
+            for (var i = 0; i < 100; i++)
             {
                 sw.Start();
-                var m = mathMatrix1.Subtract(mathMatrix2);
+                var m = mathMatrix1.Multiply(mathMatrix2);
                 sw.Stop();
             }
 
             Console.WriteLine("Total time: " + sw.Elapsed.TotalMilliseconds);
         }
 
-        private int[,] PrepareMatrixInt(int rows, int cols)
+        [TestCategory("Performance")]
+        [TestMethod]
+        public void MultiplicationPerformance_Float()
+        {
+            var n = 300;
+            var data1 = PrepareMatrixFloat(n, n, 1);
+            var data2 = PrepareMatrixFloat(n, n, 1);
+
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+            var mathMatrix2 = new MathMatrix<float>(data2, MatrixVectorizationType.ByColumn);
+
+            var sw = new Stopwatch();
+
+            for (var i = 0; i < 100; i++)
+            {
+                sw.Start();
+                var m = mathMatrix1.Multiply(mathMatrix2);
+                sw.Stop();
+            }
+
+            Console.WriteLine("Total time: " + sw.Elapsed.TotalMilliseconds);
+        }
+
+        private static int[,] PrepareMatrixInt(int rows, int cols, int max = 500)
         {
             var data = new int[rows, cols];
             var r = new Random();
 
-            for (int row = 0; row < rows; row++)
+            for (var row = 0; row < rows; row++)
             {
-                for (int col = 0; col < cols; col++)
+                for (var col = 0; col < cols; col++)
                 {
-                    data[row, col] = r.Next(0, 500);
+                    data[row, col] = r.Next(0, max);
                 }
             }
 
             return data;
         }
 
-        private float[,] PrepareMatrixFloat(int rows, int cols)
+        private static float[,] PrepareMatrixFloat(int rows, int cols, int max = 500)
         {
             var data = new float[rows, cols];
             var r = new Random();
 
-            for (int row = 0; row < rows; row++)
+            for (var row = 0; row < rows; row++)
             {
-                for (int col = 0; col < cols; col++)
+                for (var col = 0; col < cols; col++)
                 {
-                    data[row, col] = (float)r.NextDouble() * 500;
+                    data[row, col] = (float)r.NextDouble() * max;
                 }
             }
 

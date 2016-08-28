@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace VectorMath
 {
@@ -27,7 +25,9 @@ namespace VectorMath
 
         public abstract T Dot(MathVector<T> left, MathVector<T> right);
 
-        public abstract MathVector<T> Multiply(MathVector<T> vector, T scalar);
+        public abstract MathVector<T> Multiply(MathVector<T> left, MathVector<T> right);
+
+        public abstract MathVector<T> MultiplyScalar(MathVector<T> vector, T scalar);
 
         public abstract MathVector<T> Divide(MathVector<T> vector, T scalar);
 

@@ -223,6 +223,40 @@ namespace VectorMath.Tests
         }
 
         [TestMethod]
+        public void MultiplyTest_Int_WithTail()
+        {
+            var data1 = new[] { 1, 2, 3, 4, 5 };
+            var data2 = new[] { 2, 3, 4, 5, 6 };
+
+            var v1 = new MathVector<int>(data1);
+            var v2 = new MathVector<int>(data2);
+            
+            var result = v1.Multiply(v2);
+
+            for (var i = 0; i < data1.Length; i++)
+            {
+                Assert.AreEqual(data1[i] * data2[i], result[i]);
+            }
+        }
+
+        [TestMethod]
+        public void MultiplyTest_Int_NoTail()
+        {
+            var data1 = new[] { 1, 2, 3, 4 };
+            var data2 = new[] { 2, 3, 4, 5 };
+
+            var v1 = new MathVector<int>(data1);
+            var v2 = new MathVector<int>(data2);
+
+            var result = v1.Multiply(v2);
+
+            for (var i = 0; i < data1.Length; i++)
+            {
+                Assert.AreEqual(data1[i] * data2[i], result[i]);
+            }
+        }
+
+        [TestMethod]
         public void DivideScalarTest_Int_WithTail()
         {
             var data1 = new[] { 1, 2, 3, 4, 5 };
@@ -401,6 +435,40 @@ namespace VectorMath.Tests
             for (var i = 0; i < data1.Length; i++)
             {
                 Assert.AreEqual(data1[i] * factor, result[i]);
+            }
+        }
+
+        [TestMethod]
+        public void MultiplyTest_Float_WithTail()
+        {
+            var data1 = new[] { 1F, 2, 3, 4, 5 };
+            var data2 = new[] { 2F, 3, 4, 5, 6 };
+
+            var v1 = new MathVector<float>(data1);
+            var v2 = new MathVector<float>(data2);
+
+            var result = v1.Multiply(v2);
+
+            for (var i = 0; i < data1.Length; i++)
+            {
+                Assert.AreEqual(data1[i] * data2[i], result[i]);
+            }
+        }
+
+        [TestMethod]
+        public void MultiplyTest_Float_NoTail()
+        {
+            var data1 = new[] { 1F, 2, 3, 4 };
+            var data2 = new[] { 2F, 3, 4, 5 };
+
+            var v1 = new MathVector<float>(data1);
+            var v2 = new MathVector<float>(data2);
+
+            var result = v1.Multiply(v2);
+
+            for (var i = 0; i < data1.Length; i++)
+            {
+                Assert.AreEqual(data1[i] * data2[i], result[i]);
             }
         }
 

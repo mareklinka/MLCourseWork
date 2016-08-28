@@ -130,7 +130,44 @@ namespace VectorMath
             }
         }
 
-        public override MathVector<T> Multiply(MathVector<T> vector, T scalar)
+        public override MathVector<T> Multiply(MathVector<T> left, MathVector<T> right)
+        {
+            var result = new List<Vector<T>>(left.Vectors.Count);
+
+            for (var i = 0; i < left.Vectors.Count; i++)
+            {
+                result.Add(Vector.Multiply(left.Vectors[i], right.Vectors[i]));
+            }
+            
+            if (typeof(T) == typeof(int))
+            {
+                if (left.Tail.Length > 0)
+                {
+                    var remainderMult = new T[left.Tail.Length];
+                    for (var i = 0; i < left.Tail.Length; i++)
+                    {
+                        remainderMult[i] = (T)(ValueType)((int)(ValueType)left.Tail[i] * (int)(ValueType)right.Tail[i]);
+                    }
+                    return new MathVector<T>(result, remainderMult);
+                }
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                if (left.Tail.Length > 0)
+                {
+                    var remainderMult = new T[left.Tail.Length];
+                    for (var i = 0; i < left.Tail.Length; i++)
+                    {
+                        remainderMult[i] = (T)(ValueType)((float)(ValueType)left.Tail[i] * (float)(ValueType)right.Tail[i]);
+                    }
+                    return new MathVector<T>(result, remainderMult);
+                }
+            }
+
+            return new MathVector<T>(result, new T[0]);
+        }
+        
+        public override MathVector<T> MultiplyScalar(MathVector<T> vector, T scalar)
         {
             var multVectorized = new List<Vector<T>>(vector.Vectors.Count);
             var factor = new Vector<T>(scalar);
@@ -155,7 +192,7 @@ namespace VectorMath
                     return new MathVector<T>(multVectorized, remainderMult);
                 }
             }
-            if (typeof(T) == typeof(float))
+            else if (typeof(T) == typeof(float))
             {
                 if (vector.Tail.Length > 0)
                 {

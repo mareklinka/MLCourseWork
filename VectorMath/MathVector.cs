@@ -96,7 +96,17 @@ namespace VectorMath
 
         public MathVector<T> MultiplyScalar(T scalar)
         {
-            return VectorOps<T>.GetInstance().Multiply(this, scalar);
+            return VectorOps<T>.GetInstance().MultiplyScalar(this, scalar);
+        }
+
+        public MathVector<T> Multiply(MathVector<T> right)
+        {
+            if (Length != right.Length)
+            {
+                throw new NotSupportedException();
+            }
+
+            return VectorOps<T>.GetInstance().Multiply(this, right);
         }
 
         public T this[int i]
