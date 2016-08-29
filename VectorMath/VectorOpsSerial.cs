@@ -116,6 +116,40 @@ namespace VectorMath
             }
         }
 
+        public override MathVector<T> Multiply(MathVector<T> left, MathMatrix<T> right)
+        {
+            var result = new T[right.Columns];
+
+            if (typeof(T) == typeof(int))
+            {
+                for (var col = 0; col < right.Columns; col++)
+                {
+                    for (var row = 0; row < left.Length; row++)
+                    {
+                        result[col] = AsT(AsInt(result[col]) + AsInt(left[row])*AsInt(right[row, col]));
+                    }
+                }
+
+                return new MathVector<T>(result);
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                for (var col = 0; col < right.Columns; col++)
+                {
+                    for (var row = 0; row < left.Length; row++)
+                    {
+                        result[col] = AsT(AsFloat(result[col]) + AsFloat(left[row]) * AsFloat(right[row, col]));
+                    }
+                }
+
+                return new MathVector<T>(result);
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+        }
+
         public override MathVector<T> MultiplyScalar(MathVector<T> vector, T scalar)
         {
             var result = new T[vector.Length];

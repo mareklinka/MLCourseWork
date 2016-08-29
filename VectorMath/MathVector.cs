@@ -199,6 +199,16 @@ namespace VectorMath
             return VectorOps<T>.GetInstance().Multiply(this, right);
         }
 
+        public MathVector<T> Multiply(MathMatrix<T> right)
+        {
+            if (Length != right.Rows)
+            {
+                throw new NotSupportedException();
+            }
+
+            return VectorOps<T>.GetInstance().Multiply(this, right);
+        }
+
         public T this[int i]
         {
             get

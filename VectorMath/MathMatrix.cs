@@ -18,8 +18,8 @@ namespace VectorMath
             }
 
             VectorizationMode = vectorization;
-            Rows = data.GetLength(0);
-            Columns = data.GetLength(1);
+            var rowCount = Rows = data.GetLength(0);
+            var colCount = Columns = data.GetLength(1);
 #if SIMD
             if (true)
 #else
@@ -29,14 +29,15 @@ namespace VectorMath
                 switch (vectorization)
                 {
                     case MatrixVectorizationType.ByRow:
-                        var rows = new List<MathVector<T>>(Rows);
-                        var size = System.Runtime.InteropServices.Marshal.SizeOf<T>();
-                        for (var row = 0; row < Rows; row++)
+                        var rows = new List<MathVector<T>>(rowCount);
+                        for (var row = 0; row < rowCount; row++)
                         {
                             var rowData = new T[Columns];
-                            
-                            Buffer.BlockCopy(data, row * Columns * size, rowData, 0, Columns*size);
 
+                            for (var col = 0; col < colCount; col++)
+                            {
+                                rowData[col] = data[row, col];
+                            }
                             rows.Add(new MathVector<T>(rowData));
                         }
 
@@ -46,8 +47,8 @@ namespace VectorMath
                         var columns = new List<MathVector<T>>(Columns);
                         for (var col = 0; col < Columns; col++)
                         {
-                            var colData = new T[Rows];
-                            for (var row = 0; row < Rows; row++)
+                            var colData = new T[rowCount];
+                            for (var row = 0; row < rowCount; row++)
                             {
                                 colData[row] = data[row, col];
                             }
@@ -112,20 +113,22 @@ namespace VectorMath
 
             {
                 var result = new T[Rows, Columns];
+                var v = Vectors;
+                var vc = Vectors.Count;
 
                 if (VectorizationMode == MatrixVectorizationType.ByRow)
                 {
                     var size = System.Runtime.InteropServices.Marshal.SizeOf<T>();
-                    for (var row = 0; row < Vectors.Count; row++)
+                    for (var row = 0; row < vc; row++)
                     {
-                        Buffer.BlockCopy(Vectors[row].ToArray(), 0, result, row * Columns * size, Columns * size);
+                        Buffer.BlockCopy(v[row].ToArray(), 0, result, row * Columns * size, Columns * size);
                     }
                 }
                 else
                 {
                     for (var col = 0; col < Vectors.Count; col++)
                     {
-                        var columnData = Vectors[col].ToArray();
+                        var columnData = v[col].ToArray();
                         for (var row = 0; row < Rows; row++)
                         {
                             result[row, col] = columnData[row];

@@ -51,7 +51,6 @@ namespace VectorMath
             return (float)(ValueType)value;
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected double AsDouble(T value)
         {

@@ -186,7 +186,59 @@ namespace VectorMath
 
             return new MathVector<T>(result, new T[0]);
         }
-        
+
+        public override MathVector<T> Multiply(MathVector<T> left, MathMatrix<T> right)
+        {
+            // swapping vectorization mode on the fly would result in major performance loss (about 20% slower than serial version)
+            if (right.VectorizationMode == MatrixVectorizationType.ByColumn)
+            {
+                var result = new T[right.Columns];
+
+                for (var i = 0; i < right.Columns; i++)
+                {
+                    result[i] = left.Dot(right.Vectors[i]);
+                }
+
+                return new MathVector<T>(result);
+            }
+            else
+            {
+                // in case of row-major storage fall back to serial calculation to avoid performance hit
+                var result = new T[right.Columns];
+                var leftArray = left.ToArray();
+                var rightArray = right.ToArray();
+
+                if (typeof(T) == typeof(int))
+                {
+                    for (var col = 0; col < right.Columns; col++)
+                    {
+                        for (var row = 0; row < left.Length; row++)
+                        {
+                            result[col] = AsT(AsInt(result[col]) + AsInt(leftArray[row]) * AsInt(rightArray[row, col]));
+                        }
+                    }
+
+                    return new MathVector<T>(result);
+                }
+                else if (typeof(T) == typeof(float))
+                {
+                    for (var col = 0; col < right.Columns; col++)
+                    {
+                        for (var row = 0; row < left.Length; row++)
+                        {
+                            result[col] = AsT(AsFloat(result[col]) + AsFloat(leftArray[row]) * AsFloat(rightArray[row, col]));
+                        }
+                    }
+
+                    return new MathVector<T>(result);
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+            }
+        }
+
         public override MathVector<T> MultiplyScalar(MathVector<T> vector, T scalar)
         {
             var multVectorized = new List<Vector<T>>(vector.Vectors.Count);

@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace VectorMath
 {
@@ -32,6 +34,8 @@ namespace VectorMath
 
         public abstract MathVector<T> Multiply(MathVector<T> left, MathVector<T> right);
 
+        public abstract MathVector<T> Multiply(MathVector<T> left, MathMatrix<T> right);
+
         public abstract MathVector<T> MultiplyScalar(MathVector<T> vector, T scalar);
 
         public abstract MathVector<T> Divide(MathVector<T> vector, T scalar);
@@ -44,5 +48,41 @@ namespace VectorMath
         public abstract T Length(MathVector<T> mathVector);
 
         public abstract MathVector<T> Abs(MathVector<T> mathVector);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected int AsInt(T value)
+        {
+            return (int)(ValueType)value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected float AsFloat(T value)
+        {
+            return (float)(ValueType)value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected double AsDouble(T value)
+        {
+            return (double)(ValueType)value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected T AsT(int value)
+        {
+            return (T)(ValueType)value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected T AsT(float value)
+        {
+            return (T)(ValueType)value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected T AsT(double value)
+        {
+            return (T)(ValueType)value;
+        }
     }
 }
