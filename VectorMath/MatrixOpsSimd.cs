@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace VectorMath
 {
@@ -107,5 +109,131 @@ namespace VectorMath
 
             return result;
         }
+
+        public override T Determinant(MathMatrix<T> matrix)
+        {
+            T[,] lower;
+            T[,] upper;
+            int[] pi;
+            int detPi;
+
+            DecomposeLU(matrix, out lower, out upper, out pi, out detPi);
+
+            var det = (float)detPi;
+            for (var i = 0; i < matrix.Rows; i++)
+            {
+                det *= AsFloat(upper[i, i]);
+            }
+
+            return AsT(det);
+        }
+
+        private void DecomposeLU(MathMatrix<T> matrix, out T[,] lower, out T[,] upper, out int[] pi, out int detPi)
+        {
+            var size = Marshal.SizeOf<T>();
+            lower = MathMatrix<T>.I(matrix.Rows).ToArray();
+            upper = matrix.ToArray();
+
+            if (typeof(T) == typeof(float))
+            {
+                pi = new int[matrix.Rows];
+
+                for (var i = 0; i < matrix.Rows; i++)
+                {
+                    pi[i] = i;
+                }
+
+                var k0 = 0;
+                detPi = 1;
+
+                for (var k = 0; k < matrix.Columns - 1; k++)
+                {
+                    double p = 0;
+                   
+                    // find the row with the biggest pivot
+                    for (var i = k; i < matrix.Rows; i++)
+                    {
+                        var abs = Math.Abs(AsFloat(upper[i, k]));
+                        if (abs > p)
+                        {
+                            p = abs;
+                            k0 = i;
+                        }
+                    }
+
+                    if (p == 0)
+                    {
+                        Console.WriteLine(p);
+                        Console.WriteLine(k);
+                        for (int row = 0; row < upper.GetLength(0); row++)
+                        {
+                            for (int col = 0; col < upper.GetLength(0); col++)
+                            {
+                                Console.Write(upper[row, col]);
+                                Console.Write("|");
+                            }
+
+                            Console.WriteLine();
+                        }
+
+                        throw new NotSupportedException("The matrix is singular!");
+                    }
+
+                    if (k != k0)
+                    {
+                        detPi *= -1;
+
+                        // switch two rows in permutation matrix
+                        var temp = pi[k];
+                        pi[k] = pi[k0];
+                        pi[k0] = temp;
+
+                        // switch rows in L
+                        // optimized - only swapping the first K items, since we are in the LOWER matrix
+                        SwapRows(lower, k0, k);
+                        SwapRows(upper, k0, k);
+                    }
+
+                    for (var i = k + 1; i < matrix.Rows; i++)
+                    {
+                        // for vectorization see comments below
+
+                       var ik = AsFloat(upper[i, k]) / AsFloat(upper[k, k]);
+                        lower[i, k] = AsT(ik);
+                        for (var j = k; j < matrix.Columns; j++)
+                        {
+                            upper[i, j] = AsT(AsFloat(upper[i, j]) - ik * AsFloat(upper[k, j]));
+                        }
+                    }
+                }
+
+                return;
+            }
+
+            throw new NotSupportedException();
+        }
     }
-}   
+
+    // unfortunate downside to the Vector<> struct - it must be initialized from an array
+    // the following code performs vectorization of the final computation, but the repetitive copying of 
+    // data into temp arrays is a huge overhead (2x slower than standard serial version)
+    // the initialization and destruction of Vector<T> is also a pain here, as the init is slow and costs GC in the long run
+
+    //var ik = AsFloat(upper[i, k]) / AsFloat(upper[k, k]);
+    //lower[i, k] = AsT(ik);
+
+    //var rowSize = matrix.Columns - k;
+    //var ikVector = new MathVector<T>(AsT(ik), rowSize);
+
+    //var upperRowDataI = new T[rowSize];
+    //var upperRowDataK = new T[rowSize];
+
+    //Buffer.BlockCopy(upper, size * matrix.Columns * i + k * size, upperRowDataI, 0, size * rowSize);
+    //Buffer.BlockCopy(upper, size * matrix.Columns * k + k * size, upperRowDataK, 0, size * rowSize);
+
+    //var upperRowIVector = new MathVector<T>(upperRowDataI);
+    //var upperRowKVector = new MathVector<T>(upperRowDataK);
+    //var resultData = (upperRowIVector - (ikVector.Multiply(upperRowKVector))).ToArray();
+
+    //Buffer.BlockCopy(resultData, 0, upper, size * matrix.Columns * i + size * k, size * rowSize);
+}

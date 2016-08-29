@@ -203,5 +203,33 @@ namespace VectorMath
                 throw new NotSupportedException();
             }
         }
+
+        public override MathVector<T> Abs(MathVector<T> vector)
+        {
+            var result = new T[vector.Length];
+
+            if (typeof(T) == typeof(int))
+            {
+                for (var i = 0; i < vector.Length; i++)
+                {
+                    result[i] = (T)(ValueType)(Math.Abs((int)(ValueType)vector[i]));
+                }
+
+                return new MathVector<T>(result);
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                for (var i = 0; i < vector.Length; i++)
+                {
+                    result[i] = (T)(ValueType)(Math.Abs((float)(ValueType)vector[i]));
+                }
+
+                return new MathVector<T>(result);
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+        }
     }
 }

@@ -20,8 +20,11 @@ namespace VectorMath
             VectorizationMode = vectorization;
             Rows = data.GetLength(0);
             Columns = data.GetLength(1);
-
+#if SIMD
+            if (true)
+#else
             if (Vector.IsHardwareAccelerated)
+#endif
             {
                 switch (vectorization)
                 {
@@ -66,7 +69,12 @@ namespace VectorMath
 
         public MathMatrix(List<MathVector<T>> vectors, MatrixVectorizationType vectorization)
         {
+#if SIMD
+            if (false)
+#else
             if (!Vector.IsHardwareAccelerated)
+#endif
+
             {
                 throw new NotSupportedException();
             }
@@ -96,7 +104,12 @@ namespace VectorMath
 
         public T[,] ToArray()
         {
+#if SIMD
+            if (true)
+#else
             if (Vector.IsHardwareAccelerated)
+#endif
+
             {
                 var result = new T[Rows, Columns];
 
@@ -124,7 +137,7 @@ namespace VectorMath
             }
             else
             {
-                return _data;
+                return (T[,])_data.Clone();
             }
         }
 
@@ -132,7 +145,13 @@ namespace VectorMath
         {
             get
             {
+#if SIMD
+                if (true)
+#else
                 if (Vector.IsHardwareAccelerated)
+#endif
+
+
                 {
                     switch (VectorizationMode)
                     {
@@ -147,6 +166,28 @@ namespace VectorMath
                 else
                 {
                     return _data[row, col];
+                }
+            }
+
+            internal set
+            {
+                if (Vector.IsHardwareAccelerated)
+                {
+                    switch (VectorizationMode)
+                    {
+                        case MatrixVectorizationType.ByRow:
+                            Vectors[row][col] = value;
+                            break;
+                        case MatrixVectorizationType.ByColumn:
+                            Vectors[col][row] = value;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                else
+                {
+                    _data[row, col] = value;
                 }
             }
         }
@@ -196,6 +237,16 @@ namespace VectorMath
         public MathMatrix<T> Transpose()
         {
             return MatrixOps<T>.GetInstance().Transpose(this);
+        }
+
+        public T Determinant()
+        {
+            if (Rows != Columns)
+            {
+                throw new NotSupportedException();
+            }
+
+            return MatrixOps<T>.GetInstance().Determinant(this);
         }
 
         public static MathMatrix<T> Zero(int rows, int columns)
@@ -256,6 +307,13 @@ namespace VectorMath
                     data[i, i] = (T)(ValueType)1F;
                 }
             }
+            else if (typeof(T) == typeof(double))
+            {
+                for (var i = 0; i < dimension; i++)
+                {
+                    data[i, i] = (T)(ValueType)1D;
+                }
+            }
             else
             {
                 throw new NotSupportedException();
@@ -278,7 +336,12 @@ namespace VectorMath
 
         internal void SwapVectorizationMode()
         {
+#if SIMD
+            if (false)
+#else
             if (!Vector.IsHardwareAccelerated)
+#endif
+
             {
                 throw new NotSupportedException();
             }
@@ -298,6 +361,24 @@ namespace VectorMath
             var temp = Rows;
             Rows = Columns;
             Columns = temp;
+        }
+
+        internal MathMatrix<T> Clone()
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                var list = new List<MathVector<T>>(Vectors.Count);
+                for (var i = 0; i < Vectors.Count; i++)
+                {
+                    list.Add(Vectors[i].Clone());
+                }
+
+                return new MathMatrix<T>(list, VectorizationMode);
+            }
+            else
+            {
+                return new MathMatrix<T>((T[,]) _data.Clone());
+            }
         }
     }
 }

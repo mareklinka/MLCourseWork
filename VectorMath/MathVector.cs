@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace VectorMath
 {
@@ -17,7 +18,11 @@ namespace VectorMath
 
             Length = data.Length;
 
-            if (Vector.IsHardwareAccelerated)
+#if SIMD
+            if (true)
+#else
+             if (Vector.IsHardwareAccelerated)
+#endif
             {
                 Vectors = Vectorize(data, out _tail);
             }
@@ -27,8 +32,50 @@ namespace VectorMath
             }
         }
 
+        public MathVector(T value, int count)
+        {
+
+            Length = count;
+
+#if SIMD
+            if (true)
+#else
+            if (Vector.IsHardwareAccelerated)
+#endif
+            {
+                var vectorCount = count/Vector<T>.Count;
+                Vectors = new List<Vector<T>>(vectorCount);
+
+                for (var i = 0; i < vectorCount; i++)
+                {
+                    Vectors.Add(new Vector<T>(value));
+                }
+
+                var remainder = count%Vector<T>.Count;
+
+                _tail = new T[remainder];
+                for (int i = 0; i < remainder; i++)
+                {
+                    _tail[i] = value;
+                }
+            }
+            else
+            {
+                Data = new T[count];
+                for (var i = 0; i < count; i++)
+                {
+                    Data[i] = value;
+                }
+            }
+        }
+
         internal MathVector(List<Vector<T>> vectors, T[] tail)
         {
+#if SIMD
+            if (false)
+#else
+            if (!Vector.IsHardwareAccelerated)
+#endif
             if (!Vector.IsHardwareAccelerated)
             {
                 throw new InvalidOperationException("Unable to construct a vector-based MathVector without HW support.");
@@ -156,7 +203,12 @@ namespace VectorMath
         {
             get
             {
+#if SIMD
+                if (true)
+#else
                 if (Vector.IsHardwareAccelerated)
+#endif
+
                 {
                     var vectorizedCount = Vector<T>.Count*Vectors.Count;
                     if (i >= vectorizedCount)
@@ -172,6 +224,31 @@ namespace VectorMath
                 else
                 {
                     return Data[i];
+                }
+            }
+
+            internal set
+            {
+                if (Vector.IsHardwareAccelerated)
+                {
+                    var vectorizedCount = Vector<T>.Count * Vectors.Count;
+                    if (i >= vectorizedCount)
+                    {
+                        Tail[i - vectorizedCount] = value;
+                    }
+                    else
+                    {
+                        var vectorIndex = (i / Vector<T>.Count);
+
+                        var data = new T[Vector<T>.Count];
+                        Vectors[vectorIndex].CopyTo(data);
+                        data[i%Vector<T>.Count] = value;
+                        Vectors[vectorIndex] = new Vector<T>(data);
+                    }
+                }
+                else
+                {
+                    Data[i] = value;
                 }
             }
         }
@@ -198,6 +275,11 @@ namespace VectorMath
             return VectorOps<T>.GetInstance().Normalize(this);
         }
 
+        public MathVector<T> Abs()
+        {
+            return VectorOps<T>.GetInstance().Abs(this);
+        }
+
         public T VectorLength()
         {
             return VectorOps<T>.GetInstance().Length(this);
@@ -205,7 +287,11 @@ namespace VectorMath
 
         public T[] ToArray()
         {
+#if SIMD
+            if (true)
+#else
             if (Vector.IsHardwareAccelerated)
+#endif
             {
                 var data = new T[Length];
                 var i = 0;
@@ -223,13 +309,44 @@ namespace VectorMath
             }
             else
             {
-                return Data;
+                return (T[]) Data.Clone();
+            }
+        }
+
+        public void ToArray(T[] target)
+        {
+#if SIMD
+            if (true)
+#else
+            if (Vector.IsHardwareAccelerated)
+#endif
+
+            {
+                var i = 0;
+                for (; i < Vectors.Count; i++)
+                {
+                    Vectors[i].CopyTo(target, i * Vector<T>.Count);
+                }
+
+                if (Tail.Length > 0)
+                {
+                    Tail.CopyTo(target, i * Vector<T>.Count);
+                }
+            }
+            else
+            {
+                var size = Marshal.SizeOf<T>();
+                Buffer.BlockCopy(Data, 0, target, 0, size*Length);
             }
         }
 
         internal MathVector<T> Clone()
         {
+#if SIMD
+            if (true)
+#else
             if (Vector.IsHardwareAccelerated)
+#endif
             {
                 var list = new List<Vector<T>>(Vectors.Count);
                 for (var i = 0; i < Vectors.Count; i++)

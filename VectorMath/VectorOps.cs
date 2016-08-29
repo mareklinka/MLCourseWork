@@ -9,7 +9,12 @@ namespace VectorMath
 
         public static VectorOps<T> GetInstance()
         {
+#if SIMD
+            if (true)
+#else
             if (Vector.IsHardwareAccelerated)
+#endif
+
             {
                 return _simd ?? (_simd = new VectorOpsSimd<T>());
             }
@@ -37,5 +42,7 @@ namespace VectorMath
         }
 
         public abstract T Length(MathVector<T> mathVector);
+
+        public abstract MathVector<T> Abs(MathVector<T> mathVector);
     }
 }

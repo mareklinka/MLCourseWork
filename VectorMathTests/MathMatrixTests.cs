@@ -661,6 +661,136 @@ namespace VectorMath.Tests
         }
 
         [TestMethod]
+        public void Determinant_2x2_Float()
+        {
+            var rows = 2;
+            //var data1 = PrepareMatrixFloat(rows, rows);
+            var data1 = new [,] {{1F, 2}, {3, 4}};
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Determinant();
+
+            Assert.AreEqual(data1[0, 0] * data1[1, 1] - data1[0, 1] * data1[1, 0], result, FloatEpsilon);
+        }
+
+        [TestMethod]
+        public void Determinant_3x3_Float()
+        {
+            // example computed by Wolfram Alpha
+            var data1 = new[,] { { 1F, 2, 3 }, { 3, 2, 1 }, { 2, 1, 3 } };
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Determinant();
+
+            Assert.AreEqual(-12, result, FloatEpsilon);
+        }
+
+        [TestMethod]
+        public void Determinant_4x4_Float()
+        {
+            // example computed by Wolfram Alpha
+            var data1 = new[,] { { 1F, 2, 3, 4 }, { 3, 4, 2, 1 }, { 1, 1, 1, 3 }, { 3, 2, 1, 4 } };
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Determinant();
+
+            Assert.AreEqual(12, result, FloatEpsilon);
+        }
+
+        [TestMethod]
+        public void Determinant_5x5_Float()
+        {
+            // example computed by Wolfram Alpha
+            var data1 = new[,]
+            {
+                {0.541865F, 0.616302F, 0.678667F, 0.701059F, 0.65555F},
+                {0.669392F, 0.299938F, 0.653423F, 0.984241F, 0.426578F},
+                {0.344834F, 0.0316045F, 0.928016F, 0.258747F, 0.58845F},
+                {0.0867786F, 0.640929F, 0.192049F, 0.726113F, 0.667954F},
+                {0.612612F, 0.939742F, 0.695467F, 0.697182F, 0.159928F}
+            };
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Determinant();
+
+            Assert.AreEqual(0.0696283, result, FloatEpsilon);
+        }
+
+        [TestMethod]
+        public void Determinant_6x6_Float()
+        {
+            // example computed by Wolfram Alpha
+            var data1 = new float[,]
+            {
+                {0.552924F, 0.234921F, 0.792491F, 0.331809F, 0.566531F, 0.410049F},
+                {0.658599F, 0.582204F, 0.95111F, 0.717428F, 0.331445F, 0.785975F},
+                {0.991842F, 0.0453762F, 0.874894F, 0.376171F, 0.0568837F, 0.652004F},
+                {0.349564F, 0.161621F, 0.668324F, 0.545462F, 0.840894F, 0.481515F},
+                {0.710822F, 0.192863F, 0.784584F, 0.937499F, 0.571135F, 0.291105F},
+                {0.815712F, 0.202527F, 0.000147915F, 0.137108F, 0.493101F, 0.162635F}
+            };
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Determinant();
+
+            Assert.AreEqual(-0.0572824F, result, FloatEpsilon);
+        }
+
+        [TestMethod]
+        public void Determinant_10x10_Float()
+        {
+            // example computed by Wolfram Alpha
+            var data1 = new float[,]
+            {
+                {
+                    0.947608F, 0.0188665F, 0.311291F, 0.425392F, 0.802979F, 0.132695F, 0.0301334F, 0.359189F, 0.593238F,
+                    0.953465F
+                },
+                {
+                    0.784727F, 0.217887F, 0.393151F, 0.605163F, 0.7522F, 0.586127F, 0.0508186F, 0.141586F, 0.847686F,
+                    0.695732F
+                },
+                {
+                    0.987599F, 0.274374F, 0.428349F, 0.335581F, 0.841285F, 0.769568F, 0.0418207F, 0.999481F, 0.0516447F,
+                    0.783739F
+                },
+                {
+                    0.670933F, 0.00458136F, 0.907957F, 0.50934F, 0.64579F, 0.503563F, 0.697977F, 0.887498F, 0.797104F,
+                    0.44686F
+                },
+                {
+                    0.0113925F, 0.572658F, 0.288216F, 0.0524767F, 0.553339F, 0.956658F, 0.038212F, 0.42527F, 0.237809F,
+                    0.388843F
+                },
+                {
+                    0.960779F, 0.611897F, 0.259834F, 0.618542F, 0.116246F, 0.137611F, 0.0942259F, 0.513293F, 0.647765F,
+                    0.559395F
+                },
+                {
+                    0.210231F, 0.885404F, 0.948014F, 0.217033F, 0.00980245F, 0.723663F, 0.455302F, 0.86287F, 0.547611F,
+                    0.476013F
+                },
+                {
+                    0.0304889F, 0.695998F, 0.736968F, 0.935107F, 0.656312F, 0.760413F, 0.0868986F, 0.608241F, 0.609165F,
+                    0.663919F
+                },
+                {
+                    0.05538F, 0.421821F, 0.933948F, 0.372348F, 0.000887508F, 0.198492F, 0.961668F, 0.388987F, 0.446955F,
+                    0.410674F
+                },
+                {
+                    0.388189F, 0.426757F, 0.535275F, 0.423885F, 0.705795F, 0.319361F, 0.995437F, 0.788767F, 0.120898F,
+                    0.722064F
+                }
+            };
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+
+            var result = mathMatrix1.Determinant();
+
+            Assert.AreEqual(0.00351536F, result, FloatEpsilon);
+        }
+
+        [TestMethod]
         public void Transpose_Float()
         {
             var rows = 10;
@@ -817,7 +947,28 @@ namespace VectorMath.Tests
 
             Console.WriteLine("Total time: " + sw.Elapsed.TotalMilliseconds);
         }
-        
+
+        [TestCategory("Performance")]
+        [TestMethod]
+        public void DeterminantPerformance_Float()
+        {
+            var n = 300;
+            var data1 = PrepareMatrixFloat(n, n, 1);
+
+            var mathMatrix1 = new MathMatrix<float>(data1, MatrixVectorizationType.ByRow);
+
+            var sw = new Stopwatch();
+
+            for (var i = 0; i < 100; i++)
+            {
+                sw.Start();
+                var m = mathMatrix1.Determinant();
+                sw.Stop();
+            }
+
+            Console.WriteLine("Total time: " + sw.Elapsed.TotalMilliseconds);
+        }
+
         private static int[,] PrepareMatrixInt(int rows, int cols, int max = 500)
         {
             var data = new int[rows, cols];

@@ -70,7 +70,15 @@ namespace VectorMath
                 {
                     for (var i = 0; i < left.Tail.Length; ++i)
                     {
-                        remainderSum[i] = (T)(ValueType)((float)(ValueType)left[i] - (float)(ValueType)right[i]);
+                        remainderSum[i] = (T)(ValueType)((float)(ValueType)left.Tail[i] - (float)(ValueType)right.Tail[i]);
+                    }
+                    return new MathVector<T>(sumVectorized, remainderSum);
+                }
+                if (typeof(T) == typeof(double))
+                {
+                    for (var i = 0; i < left.Tail.Length; ++i)
+                    {
+                        remainderSum[i] = (T)(ValueType)((double)(ValueType)left.Tail[i] - (double)(ValueType)right.Tail[i]);
                     }
                     return new MathVector<T>(sumVectorized, remainderSum);
                 }
@@ -159,6 +167,18 @@ namespace VectorMath
                     for (var i = 0; i < left.Tail.Length; i++)
                     {
                         remainderMult[i] = (T)(ValueType)((float)(ValueType)left.Tail[i] * (float)(ValueType)right.Tail[i]);
+                    }
+                    return new MathVector<T>(result, remainderMult);
+                }
+            }
+            else if (typeof(T) == typeof(double))
+            {
+                if (left.Tail.Length > 0)
+                {
+                    var remainderMult = new T[left.Tail.Length];
+                    for (var i = 0; i < left.Tail.Length; i++)
+                    {
+                        remainderMult[i] = (T)(ValueType)((double)(ValueType)left.Tail[i] * (double)(ValueType)right.Tail[i]);
                     }
                     return new MathVector<T>(result, remainderMult);
                 }
@@ -302,6 +322,43 @@ namespace VectorMath
             }
 
             throw new NotSupportedException();
+        }
+
+        public override MathVector<T> Abs(MathVector<T> vector)
+        {
+            var result = new List<Vector<T>>(vector.Vectors.Count);
+
+            for (var i = 0; i < vector.Vectors.Count; i++)
+            {
+                result.Add(Vector.Abs(vector.Vectors[i]));
+            }
+
+            if (typeof(T) == typeof(int))
+            {
+                if (vector.Tail.Length > 0)
+                {
+                    var remainderMult = new T[vector.Tail.Length];
+                    for (var i = 0; i < vector.Tail.Length; i++)
+                    {
+                        remainderMult[i] = (T)(ValueType)(Math.Abs((int)(ValueType)vector.Tail[i]));
+                    }
+                    return new MathVector<T>(result, remainderMult);
+                }
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                if (vector.Tail.Length > 0)
+                {
+                    var remainderMult = new T[vector.Tail.Length];
+                    for (var i = 0; i < vector.Tail.Length; i++)
+                    {
+                        remainderMult[i] = (T)(ValueType)(Math.Abs((float)(ValueType)vector.Tail[i]));
+                    }
+                    return new MathVector<T>(result, remainderMult);
+                }
+            }
+
+            return new MathVector<T>(result, new T[0]);
         }
     }
 }

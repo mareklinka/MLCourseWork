@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
+using System.Numerics;
 
 namespace VectorMath
 {
@@ -144,6 +142,104 @@ namespace VectorMath
         public override MathMatrix<T> Transpose(MathMatrix<T> matrix)
         {
             return new MathMatrix<T>(TransposeCore(matrix));
+        }
+
+        public override T Determinant(MathMatrix<T> matrix)
+        {
+            T[,] lower;
+            T[,] upper;
+            int[] pi;
+            int detPi;
+
+            DecomposeLU(matrix, out lower, out upper, out pi, out detPi);
+
+            for (int row = 0; row < upper.GetLength(0); row++)
+            {
+                for (int col = 0; col < upper.GetLength(0); col++)
+                {
+                    Console.Write(upper[row, col]);
+                    Console.Write("|");
+                }
+
+                Console.WriteLine();
+            }
+
+            var det = (float)detPi;
+            for (var i = 0; i < matrix.Rows; i++)
+            {
+                det *= AsFloat(upper[i, i]);
+            }
+
+            return AsT(det);
+        }
+
+        private void DecomposeLU(MathMatrix<T> matrix, out T[,] lower, out T[,] upper, out int[] pi, out int detPi)
+        {
+            lower = MathMatrix<T>.I(matrix.Rows).ToArray();
+            upper = matrix.ToArray();
+
+            if (typeof(T) == typeof(float))
+            {
+                pi = new int[matrix.Rows];
+
+                for (var i = 0; i < matrix.Rows; i++)
+                {
+                    pi[i] = i;
+                }
+
+                double p;
+                var k0 = 0;
+                int temp;
+                detPi = 1;
+
+                for (var k = 0; k < matrix.Columns - 1; k++)
+                {
+                    p = 0;
+
+                    // find the row with the biggest pivot
+                    for (var i = k; i < matrix.Rows; i++)      
+                    {
+                        var abs = Math.Abs(AsFloat(upper[i, k]));
+                        if (abs > p)
+                        {
+                            p = abs;
+                            k0 = i;
+                        }
+                    }
+
+                    if (p == 0)
+                    {
+                        throw new NotSupportedException("The matrix is singular!");
+                    }
+
+                    if (k != k0)
+                    {
+                        detPi *= -1;
+
+                        // switch two rows in permutation matrix
+                        temp = pi[k];
+                        pi[k] = pi[k0];
+                        pi[k0] = temp;
+
+                        SwapRows(lower, k, k0);
+                        SwapRows(upper, k, k0);
+                    }
+
+                    for (var i = k + 1; i < matrix.Rows; i++)
+                    {
+                        var ik = AsFloat(upper[i, k]) / AsFloat(upper[k, k]);
+                        lower[i, k] = AsT(ik);
+                        for (var j = k; j < matrix.Columns; j++)
+                        {
+                            upper[i, j] = AsT(AsFloat(upper[i, j]) - ik*AsFloat(upper[k, j]));
+                        }
+                    }
+                }
+                
+                return;
+            }
+
+            throw new NotSupportedException();
         }
     }
 }
