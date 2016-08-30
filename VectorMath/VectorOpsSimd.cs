@@ -203,39 +203,15 @@ namespace VectorMath
             }
             else
             {
-                // in case of row-major storage fall back to serial calculation to avoid performance hit
-                var result = new T[right.Columns];
-                var leftArray = left.ToArray();
-                var rightArray = right.ToArray();
-
-                if (typeof(T) == typeof(int))
+                var vectorData = left.ToArray();
+                var result = MathVector<T>.Zero(right.Columns);
+                for (var i = 0; i < vectorData.Length; i++)
                 {
-                    for (var col = 0; col < right.Columns; col++)
-                    {
-                        for (var row = 0; row < left.Length; row++)
-                        {
-                            result[col] = AsT(AsInt(result[col]) + AsInt(leftArray[row]) * AsInt(rightArray[row, col]));
-                        }
-                    }
+                    var vectorI = new MathVector<T>(vectorData[i], right.Columns);
+                    result += vectorI.Multiply(right.Vectors[i]);
+                }
 
-                    return new MathVector<T>(result);
-                }
-                else if (typeof(T) == typeof(float))
-                {
-                    for (var col = 0; col < right.Columns; col++)
-                    {
-                        for (var row = 0; row < left.Length; row++)
-                        {
-                            result[col] = AsT(AsFloat(result[col]) + AsFloat(leftArray[row]) * AsFloat(rightArray[row, col]));
-                        }
-                    }
-
-                    return new MathVector<T>(result);
-                }
-                else
-                {
-                    throw new NotSupportedException();
-                }
+                return result;
             }
         }
 
